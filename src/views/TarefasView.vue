@@ -41,7 +41,7 @@
                   :disabled="loading"
                   color="secondary"
               >
-                Salvar Tarefa
+                Salvar
               </v-btn>
             </v-col>
           </v-row>

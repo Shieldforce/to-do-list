@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import TaskComponent from "@/components/Tarefas/TaskComponent";
+import TaskComponent from "@/components/Tasks/TaskComponent";
 
 export default {
   name: 'TarefasView',
@@ -88,6 +88,9 @@ export default {
       loading: false,
       completed: false,
     }
+  },
+  mounted() {
+
   },
   methods: {
     handleSaveTask() {

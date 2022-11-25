@@ -74,14 +74,18 @@ export default {
   data: () => ({
     drawer: null,
     items: [
-      {title: 'Tarefas', icon: 'mdi-task', to: '/'},
-      {title: 'Sobre', icon: 'mdi-about', to: '/sobre'},
+      {
+        title: 'Tarefas',
+        icon: 'mdi-task',
+        to: '/'
+      },
+      {
+        title: 'Sobre',
+        icon: 'mdi-about',
+        to: '/sobre'
+      },
     ],
-  }),
-  mounted() {
-    this.$store.commit('requireTokenApiTags');
-    this.$store.commit('listTasks', {}, {});
-  }
+  })
 }
 </script>
 Footer

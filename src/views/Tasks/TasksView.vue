@@ -64,13 +64,16 @@
               active-class=""
           >
             <div
-                v-for="(task) in this.$store.state.tasks"
+                v-for="(task) in tasks"
                 :key="task.id"
             >
               <TaskComponent
                   :task="task"
                   cardColorCompleted="green"
                   colorDefault="green"
+                  :tasks="tasks"
+                  :removeTask="handleRemoveTask"
+                  :completedTask="handleCompletedTask"
               />
             </div>
           </v-list-item-group>
@@ -91,12 +94,13 @@ export default {
     TaskComponent
   },
   mounted() {
-    this.requiredToken();
-    this.getListTaks();
+    this.handleRequiredToken();
+    this.handleGetListTaks();
   },
   data() {
     return {
       tasks: [],
+      tagsTasksId: null,
       formAddTaskvalid: false,
       titleRules: [
         v => !!v || 'Título é obrigatório!',
@@ -119,17 +123,11 @@ export default {
         this.loading = false;
         return;
       }
-      this.$store.commit(
-          'addTask',
-          {
-            title: this.title,
-            description: this.description
-          }
-      );
+      this.handleAddTaks();
       this.$refs.formAddTaskvalid.reset();
       this.loading = false;
     },
-    loginApiTags() {
+    handleLoginApiTags() {
       httpAxiosApiTags.post(`/access/login`, {
         email: process.env.VUE_APP_USER_API_TAGS,
         password: process.env.VUE_APP_PASS_API_TAGS,
@@ -137,7 +135,7 @@ export default {
         localStorage.setItem('access_token', response.data.data.access_token);
       });
     },
-    requiredToken() {
+    handleRequiredToken() {
       var getToken = localStorage.getItem('access_token');
       if (getToken) {
         httpAxiosApiTags.get(`/access/me`, {
@@ -149,16 +147,75 @@ export default {
           localStorage.setItem('expired', response.data.data.microtime);
         }).catch(response => {
           if (response.response.data.message === "Token expirado!") {
-            this.loginApiTags();
+            this.handleLoginApiTags();
           }
         });
       } else {
-        this.loginApiTags();
+        this.handleLoginApiTags();
       }
     },
-    getListTaks() {
-      this.$store.commit('listTasks', {}, {});
+    handleGetListTaks() {
+      setTimeout(() => {
+        httpAxiosApiTags.get(`/tag/my-tags`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          }
+        }).then(response => {
+          var list = response.data.data.data;
+          var tagsTasks = list.filter(tag => tag.title === 'Tags Shieldforce Tags');
+          this.tagsTasksId = tagsTasks[0].id;
+          this.tasks = JSON.parse(tagsTasks[0].description);
+        });
+      }, 500)
+    },
+    handleAddTaks() {
+      if (this.title && this.description) {
+        var id = new Date().getTime();
+        var objTask = {
+          id: id,
+          order: 0,
+          title: this.title,
+          description: this.description,
+          completed: false
+        };
+        this.tasks.push(objTask);
+        var data = this.tasks;
+        httpAxiosApiTags.post(`/tag/edit-my-tags/${this.tagsTasksId}`, {description: data}, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+              },
+            }
+        ).catch(response => {
+          this.tasks.splice(objTask, 1);
+          return response;
+        });
+      }
+    },
+    handleRemoveTask(task) {
+      httpAxiosApiTags.post(`/tag/edit-my-tags/${this.tagsTasksId}`, {description: this.tasks}, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            },
+          }
+      ).catch(response => {
+        return response;
+      });
+      return task;
+    },
+    handleCompletedTask(task) {
+      httpAxiosApiTags.post(`/tag/edit-my-tags/${this.tagsTasksId}`, {
+        description: this.tasks,
+        completed: task.completed
+        }, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          },
+        }
+      ).catch(response => {
+        return response;
+      });
+      return task;
     }
-  },
+  }
 }
 </script>

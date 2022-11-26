@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-list-item
-    :color="cardColorCompleted"
+    :color="completedColor"
     :class="colorPlusTransparency"
     @click="handleCompletedTask(task)"
     >
@@ -12,17 +12,17 @@
 
         <v-list-item-content>
           <v-list-item-title
-              :class="{'text-decoration-line-through': task.completed}"
+              :class="titleDecoration"
           >{{task.title}}</v-list-item-title>
           <v-list-item-subtitle
-              :class="{'text-decoration-line-through': task.completed}"
+              :class="subTitleDecoration"
           >{{task.description}}</v-list-item-subtitle>
         </v-list-item-content>
 
         <v-list-item-action>
           <v-btn
               icon
-              @click.stop="handleRemoveTask(task.id)"
+              @click.stop="handleRemoveTask(task)"
           >
             <v-icon color="red lighten-1">mdi-trash-can</v-icon>
           </v-btn>
@@ -30,39 +30,54 @@
 
       </template>
     </v-list-item>
-    <v-divider></v-divider>
+    <v-divider :light="!!task.completed" :dark="task.completed"></v-divider>
   </div>
 </template>
 
 <script>
 
-
 export default {
   props: [
     'task',
-    'cardColorCompleted',
-    'colorDefault'
+    'tasks',
+    'colorDefault',
+    'removeTask',
+    'completedTask',
   ],
   data() {
     return {
+      completedColor : this.$props.task.completed ? 'green' : 'red',
+      tasksScoped: this.$props.tasks,
       completed: false,
-      colorPlusTransparency: null
+      titleDecoration: this.$props.task.completed ? 'text-decoration-line-through' : '',
+      subTitleDecoration: this.$props.task.completed ? 'text-decoration-line-through' : '',
+      colorPlusTransparency: this.$props.task.completed ? 'green lighten-4' : ''
     }
   },
   methods: {
     handleCompletedTask(task) {
+
       this.colorPlusTransparency = "";
+      this.titleDecoration = '';
+      this.subTitleDecoration = '';
+      this.completedColor = '';
+
       task.completed = !task.completed;
+
       if(task.completed) {
-        this.colorPlusTransparency = this.cardColorCompleted + ' lighten-4';
+        this.completedColor = 'green';
+        this.colorPlusTransparency = this.completedColor + ' lighten-4';
+        this.titleDecoration = 'text-decoration-line-through';
+        this.subTitleDecoration = 'text-decoration-line-through';
       }
+
+      this.completedTask(task);
+
     },
-    handleRemoveTask(id) {
-      this.$store.commit(
-          'removeTask',
-          id
-      );
-    },
+    handleRemoveTask(task) {
+      this.$props.tasks.splice(task, 1);
+      this.removeTask(task);
+    }
   }
 }
 </script>

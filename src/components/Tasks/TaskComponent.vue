@@ -22,7 +22,7 @@
         <v-list-item-action>
           <v-btn
               icon
-              @click.stop="handleRemoveTask(task)"
+              @click.stop="destroyTask(task)"
           >
             <v-icon color="red lighten-1">mdi-trash-can</v-icon>
           </v-btn>
@@ -39,15 +39,16 @@
 export default {
   props: [
     'task',
-    'tasks',
     'colorDefault',
     'removeTask',
     'completedTask',
+    'selectedTagValue'
   ],
   data() {
     return {
+      sharedState: this.$store.state,
       completedColor : this.$props.task.completed ? 'green' : 'red',
-      tasksScoped: this.$props.tasks,
+      tasksScoped: this.$store.state.tasks.tasks,
       completed: false,
       titleDecoration: this.$props.task.completed ? 'text-decoration-line-through' : '',
       subTitleDecoration: this.$props.task.completed ? 'text-decoration-line-through' : '',
@@ -56,29 +57,23 @@ export default {
   },
   methods: {
     handleCompletedTask(task) {
-
       this.colorPlusTransparency = "";
       this.titleDecoration = '';
       this.subTitleDecoration = '';
       this.completedColor = '';
-
       task.completed = !task.completed;
-
       if(task.completed) {
         this.completedColor = 'green';
         this.colorPlusTransparency = this.completedColor + ' lighten-4';
         this.titleDecoration = 'text-decoration-line-through';
         this.subTitleDecoration = 'text-decoration-line-through';
       }
-
       this.completedTask(task);
-
     },
-    handleRemoveTask(task) {
-      this.$props.tasks.splice(task, 1);
-      this.removeTask(task);
+    destroyTask(task) {
+      this.$store.commit('destroyTask', { task:task, tagId:this.$props.selectedTagValue });
     }
-  }
+  },
 }
 </script>
 

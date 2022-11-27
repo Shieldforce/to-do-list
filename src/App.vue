@@ -64,16 +64,50 @@
     </v-app-bar>
 
     <v-main>
-      <router-view/>
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
 <script>
+import httpAxiosApiTags from "@/plugins/axiosApiTags";
+
 export default {
+  mounted() {
+    this.handleRequiredToken();
+  },
+  methods: {
+    handleLoginApiTags() {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("expired");
+      httpAxiosApiTags.post(`/access/login`, {
+        email: process.env.VUE_APP_USER_API_TAGS,
+        password: process.env.VUE_APP_PASS_API_TAGS,
+      }).then(response => {
+        localStorage.setItem('access_token', response.data.data.access_token);
+        localStorage.setItem('expired', new Date());
+      });
+    },
+    handleRequiredToken() {
+      var getToken = localStorage.getItem('access_token');
+      var expired = localStorage.getItem('expired');
+      var start = new Date(expired);
+      var end = new Date();
+      var diff = new Date( end - start );
+
+      if(!getToken || getToken && diff.getUTCMinutes() > 20) {
+        this.handleLoginApiTags();
+      }
+    },
+  },
   data: () => ({
     drawer: null,
     items: [
+      {
+        title: 'Tags',
+        icon: 'mdi-tags',
+        to: '/tags'
+      },
       {
         title: 'Tarefas',
         icon: 'mdi-task',

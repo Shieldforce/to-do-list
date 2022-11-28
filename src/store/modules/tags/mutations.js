@@ -3,8 +3,8 @@ import httpAxiosApiTags from "@/plugins/axiosApiTags";
 export default {
     loginApiTagsTags(state) {
         httpAxiosApiTags.post(`/access/login`, {
-            email: this.state.tags.credentials.user,
-            password: this.state.tags.credentials.pass,
+            email: process.env.VUE_APP_USER_API_TAGS,
+            password: process.env.VUE_APP_PASS_API_TAGS,
         }).then(response => {
             state.credentials.token = response.data.data.access_token;
             state.credentials.expired = new Date();

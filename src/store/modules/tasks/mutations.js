@@ -7,7 +7,7 @@ export default {
            var data = state.tasks;
             httpAxiosApiTags.post(`/tag/edit-my-tags/${objTask.tagId}`, { description: data }, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        'Authorization': `Bearer ${this.state.tags.credentials.token}`
                     },
                 }
             ).catch(response => {
@@ -19,7 +19,7 @@ export default {
     destroyTask(state, objDestroy) {
         httpAxiosApiTags.post(`/tag/edit-my-tags/${objDestroy.tagId}`, { description: state.tasks }, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    'Authorization': `Bearer ${this.state.tags.credentials.token}`
                 },
             }
         ).then(response => {
@@ -37,7 +37,7 @@ export default {
         setTimeout(() => {
             httpAxiosApiTags.get(`/tag/my-tags`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    'Authorization': `Bearer ${this.state.tags.credentials.token}`
                 }
             }).then(response => {
                 var list = response.data.data.data;
@@ -52,7 +52,7 @@ export default {
                 completed: objCompleted.task.completed
             }, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    'Authorization': `Bearer ${this.state.tags.credentials.token}`
                 },
             }
         ).catch(response => {
